@@ -69,7 +69,7 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  */
 fun digitNumber(n: Int): Int {
     var count = 0
-    var num = n
+    var num = kotlin.math.abs(n)
     do {
         count += 1
         num /= 10
@@ -209,11 +209,15 @@ fun collatzSteps(x: Int): Int {
  * Использовать kotlin.math.sin и другие стандартные реализации функции синуса в этой задаче запрещается.
  */
 fun sin(x: Double, eps: Double = 1e-5): Double {
-    val arg = x - (x / (2 * kotlin.math.PI)).toInt() * 2 * kotlin.math.PI
+    var arg = x
+    if (x > 0)
+        arg -= (x / (2 * kotlin.math.PI)).toInt() * 2 * kotlin.math.PI
+    else
+        arg += (-x / (2 * kotlin.math.PI)).toInt() * 2 * kotlin.math.PI
     var frac = arg
     var step = 1
     var sin = 0.0
-    while (frac > eps) {
+    while (kotlin.math.abs(frac) > eps) {
         if (step % 2 == 0)
             sin -= frac
         else
@@ -234,7 +238,11 @@ fun sin(x: Double, eps: Double = 1e-5): Double {
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
 fun cos(x: Double, eps: Double): Double {
-    val arg = x - (x / (2 * kotlin.math.PI)).toInt() * 2 * kotlin.math.PI
+    var arg = x
+    if (x > 0)
+        arg -= (x / (2 * kotlin.math.PI)).toInt() * 2 * kotlin.math.PI
+    else
+        arg += (-x / (2 * kotlin.math.PI)).toInt() * 2 * kotlin.math.PI
     var frac = 1.0
     var step = 1
     var cos = 0.0
@@ -282,13 +290,7 @@ fun isPalindrome(n: Int): Boolean {
         new = 10 * new + old % 10
         old /= 10
     }
-    old = n
-    while (new > 0) {
-        if (new % 10 != old % 10) return false
-        new /= 10
-        old /= 10
-    }
-    return true
+    return n == new
 }
 
 /**
