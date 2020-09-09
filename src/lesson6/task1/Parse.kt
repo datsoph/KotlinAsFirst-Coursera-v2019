@@ -3,6 +3,7 @@
 package lesson6.task1
 
 import java.lang.Exception
+import java.util.*
 
 /**
  * Пример
@@ -400,4 +401,82 @@ fun fromRoman(roman: String): Int {
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    if (!commands.matches(Regex("[\\s\\[\\]<>+-]*")))
+        throw IllegalArgumentException()
+    var check = 0
+    for (c in commands) {
+        if (c == '[')
+            check += 1
+        else if (c == ']')
+            check -= 1
+        if (check < 0)
+            throw IllegalArgumentException()
+    }
+    if (check != 0)
+        throw IllegalArgumentException()
+    val cell = MutableList(cells) { 0 }
+    var p = cells / 2
+    var j = 0
+    for (i in 1..limit) {
+        if (j == commands.length)
+            return cell
+        if (commands[j] == '>') {
+            p += 1
+            j += 1
+            if (p == cells)
+                throw IllegalStateException(i.toString())
+            continue
+        }
+        if (commands[j] == '<') {
+            p -= 1
+            j += 1
+            if (p < 0)
+                throw IllegalStateException(i.toString())
+            continue
+        }
+        if (commands[j] == '+') {
+            cell[p] += 1
+            j += 1
+            continue
+        }
+        if (commands[j] == '-') {
+            cell[p] -= 1
+            j += 1
+            continue
+        }
+        if (commands[j] == '[') {
+            var count = 0
+            if (cell[p] == 0) {
+                j += 1
+                while (commands[j] != ']' || count != 0) {
+                    if (commands[j] == '[')
+                        count += 1
+                    if (commands[j] == ']')
+                        count -= 1
+                    j += 1
+                }
+            }
+            j += 1
+            continue
+        }
+        if (commands[j] == ']') {
+            var count = 0
+            if (cell[p] != 0) {
+                j -= 1
+                while (commands[j] != '[' || count != 0) {
+                    if (commands[j] == '[')
+                        count -= 1
+                    if (commands[j] == ']')
+                        count += 1
+                    j -= 1
+                }
+            }
+            j += 1
+            continue
+        }
+        if (commands[j] == ' ')
+            j += 1
+    }
+    return cell
+}
