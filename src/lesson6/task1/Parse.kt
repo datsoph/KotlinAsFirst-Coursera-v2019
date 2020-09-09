@@ -2,6 +2,8 @@
 
 package lesson6.task1
 
+import java.lang.Exception
+
 /**
  * Пример
  *
@@ -69,7 +71,42 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+fun dateStrToDigit(str: String): String {
+    val line = str.split(" ")
+    val day: Int
+    val month: Int
+    val year: Int
+    val months = listOf(
+        "января",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    )
+    val daysInMonths = listOf(0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+    if (line.size != 3)
+        return ""
+    if (line[1] in months)
+        month = months.indexOf(line[1]) + 1
+    else
+        return ""
+    try {
+        day = line[0].toInt()
+        year = line[2].toInt()
+        if (day !in 1..daysInMonths[month] || day == 29 && month == 2 && (year % 400 != 0 && year % 100 == 0 || year % 4 != 0))
+            return ""
+    } catch (e: Exception) {
+        return ""
+    }
+    return String.format("%02d.%02d.%d", day, month, year)
+}
 
 /**
  * Средняя
@@ -81,7 +118,41 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    val line = digital.split(".")
+    if (line.size != 3)
+        return ""
+    val day: Int
+    val month: Int
+    val year: Int
+    val months = listOf(
+        "января",
+        "февраля",
+        "марта",
+        "апреля",
+        "мая",
+        "июня",
+        "июля",
+        "августа",
+        "сентября",
+        "октября",
+        "ноября",
+        "декабря"
+    )
+    val daysInMonths = listOf(0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+    try {
+        day = line[0].toInt()
+        month = line[1].toInt()
+        year = line[2].toInt()
+        if (day !in 1..daysInMonths[month] || day == 29 && month == 2 && (year % 400 != 0 && year % 100 == 0 || year % 4 != 0))
+            return ""
+        if (month !in 1..12 || year < 0)
+            return ""
+    } catch (e: Exception) {
+        return ""
+    }
+    return "$day ${months[month - 1]} $year"
+}
 
 /**
  * Средняя
@@ -97,7 +168,26 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    val allowed = setOf('-', '(', ')', ' ')
+    var number = ""
+    var flag1 = false //встретилась открывающая скобка
+    var flag2 = false //встретилась цифра после открывающей скобки
+    var flag3 = false //встретилась закрывающая скобка
+    for (char in phone) {
+        if (char == '(')
+            if (flag1) return ""
+            else flag1 = true
+        if (char in '0'..'9' && flag1)
+            flag2 = true
+        if (char == ')')
+            if (flag1 && flag2 && !flag3) flag3 = true
+            else return ""
+        if (char in '0'..'9' || char == '+' && number == "") number += char
+        else if (char !in allowed) return ""
+    }
+    return if (number != "+") number else ""
+}
 
 /**
  * Средняя
@@ -109,7 +199,21 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    var max = -1
+    val data = jumps.split(' ')
+    for (current in data) {
+        if (current == "-" || current == "%")
+            continue
+        try {
+            val num = current.toInt()
+            if (num > max) max = num
+        } catch (e: Exception) {
+            return -1
+        }
+    }
+    return max
+}
 
 /**
  * Сложная
@@ -122,7 +226,22 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    var prev = -1
+    var max = -1
+    for (x in jumps.split(' ')) {
+        if (x[0] == '+' && prev > max)
+            max = prev
+        prev = -1
+        if (x.matches(Regex("[+%-]+")))
+            continue
+        if (x.matches(Regex("[0-9]+")))
+            prev = x.toInt()
+        else
+            return -1
+    }
+    return max
+}
 
 /**
  * Сложная
@@ -133,7 +252,29 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    var isnum = true
+    var res = 0
+    var op = true
+    for (x in expression.split(' ')) {
+        if (isnum) {
+            if (x.matches(Regex("[0-9]+")))
+                if (op)
+                    res += x.toInt()
+                else
+                    res -= x.toInt()
+            else throw IllegalArgumentException()
+        } else {
+            op = when (x) {
+                "+" -> true
+                "-" -> false
+                else -> throw IllegalArgumentException()
+            }
+        }
+        isnum = !isnum
+    }
+    return res
+}
 
 /**
  * Сложная
@@ -144,7 +285,16 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int {
+    val list = str.split(' ')
+    var ind = 0
+    for (i in 1 until list.size)
+        if (list[i - 1].toLowerCase() == list[i].toLowerCase())
+            return ind
+        else
+            ind += list[i - 1].length + 1
+    return -1
+}
 
 /**
  * Сложная
@@ -157,7 +307,23 @@ fun firstDuplicateIndex(str: String): Int = TODO()
  * или пустую строку при нарушении формата строки.
  * Все цены должны быть больше либо равны нуля.
  */
-fun mostExpensive(description: String): String = TODO()
+fun mostExpensive(description: String): String {
+    try {
+        val goods = description.split("; ")
+        var current = goods[0].split(' ')
+        var max = Pair(current[0], current[1].toDouble())
+        for (i in 1 until goods.size) {
+            current = goods[i].split(' ')
+            if (current.size != 2)
+                return ""
+            if (current[1].toDouble() > max.second)
+                max = Pair(current[0], current[1].toDouble())
+        }
+        return max.first
+    } catch (e: Exception) {
+        return ""
+    }
+}
 
 /**
  * Сложная
@@ -170,7 +336,33 @@ fun mostExpensive(description: String): String = TODO()
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
-fun fromRoman(roman: String): Int = TODO()
+fun fromRoman(roman: String): Int {
+    val ones = listOf("", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX")
+    val tens = listOf("", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC")
+    val hundreds = listOf("", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM")
+    var i = 0
+    var num = 0
+    while (i < roman.length && roman[i] == 'M') {
+        i += 1
+        num += 1000
+    }
+    for (j in hundreds.size - 1 downTo 1)
+        if (roman.startsWith(hundreds[j], i)) {
+            i += hundreds[j].length
+            num += j * 100
+        }
+    for (j in tens.size - 1 downTo 1)
+        if (roman.startsWith(tens[j], i)) {
+            i += tens[j].length
+            num += j * 10
+        }
+    for (j in ones.size - 1 downTo 1)
+        if (roman.startsWith(ones[j], i)) {
+            i += ones[j].length
+            num += j
+        }
+    return if (i == roman.length) num else -1
+}
 
 /**
  * Очень сложная
